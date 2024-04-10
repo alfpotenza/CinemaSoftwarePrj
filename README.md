@@ -14,3 +14,11 @@ Nome | Durata | Giorno | Mese | Anno | ora | minuto | sala
 ### Ora, apri la classe MAIN e premi RUN. Gli utenti dovranno seguire le istruzioni date dal programma nella console.
 
 [il foglio excel]: https://docs.google.com/spreadsheets/d/1IbLt4IY1STo73dEO0aUPmSYmB0pNF3RdSkAapwMIqIg/edit?usp=sharing
+
+###### per poter aprire il progetto in eclipse:
+1. Scaricare il file zip da GitHub
+2. Estrarre il file zip
+3. Da eclipse, andare in File > Open projects from file system
+4. Cliccare su Directory
+5. Selezionare la cartella CinemaSoftwarePrj-master più interna
+6. I file .Class si dovranno trovare nel default package interno a src, mentre il file .CSV all'esterno del package ma all'interno del src
