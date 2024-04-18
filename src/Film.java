@@ -1,6 +1,8 @@
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Film {
@@ -14,6 +16,27 @@ public class Film {
         this.duration = duration;
         this.programmazione = programmazione;
     }
+    public Film(ArrayList<String> movieInfo, ArrayList<String> timeTable) {
+        ArrayList<LocalDate> dates = new ArrayList<>();
+        ArrayList<HashMap<LocalTime, Sala>> times = new ArrayList<>();
+        for (int i = 0; i < timeTable.size(); i++) {
+            if(timeTable.get(i).equals("D")) {
+                dates.add(LocalDate.of(Integer.parseInt(timeTable.get(i + 1)), Integer.parseInt(timeTable.get(i + 2)), Integer.parseInt(timeTable.get(i + 3))));
+            } else if(timeTable.get(i).equals("T")) {
+                HashMap<LocalTime, Sala> time = new HashMap<>();
+                //se ci sono problemi con le sale guardare qui
+                time.put(LocalTime.of(Integer.parseInt(timeTable.get(i + 1)), Integer.parseInt(timeTable.get(i + 2))), new Sala(Integer.parseInt(timeTable.get(i + 3))));
+                times.add(time);
+            }
+        }
+        this.movieName = movieInfo.get(0);
+        this.duration = Integer.parseInt(movieInfo.get(1));
+        for (int i = 0; i < dates.size(); i++) {
+            for (int j = 0; j < times.get(i).keySet().size(); j++) {
+                this.programmazione = new Programmazione((HashMap<LocalDate, HashMap<LocalTime, Sala>>)new HashMap<>().put(dates.get(i), new HashMap<>().put(times.get(i).keySet().toArray()[j], times.get(i).values().toArray()[j])));
+            }
+        }
+    }
 
     public Programmazione getProgrammazione() {
         return programmazione;
@@ -23,32 +46,18 @@ public class Film {
         return movieName;
     }
 
-    public void stampaFilm(int curFilm, boolean isCheckingTime) {
-        HashMap<LocalTime, ArrayList<Sala>> scheduleHashMap;
+    public String toString(int curFilm) {
+        HashMap<LocalDate, HashMap<LocalTime, Sala>> scheduleHashMap;
         scheduleHashMap = programmazione.schedule;
         String orari = "";
         for (int i = 0; i < scheduleHashMap.size(); i++) {
             LocalTime time = (LocalTime)scheduleHashMap.keySet().toArray()[i];
-            ArrayList<Sala> sale = (ArrayList<Sala>)scheduleHashMap.values().toArray()[i];
+            Sala sala = (Sala)scheduleHashMap.values().toArray()[i];
             String saleTxt = "";
-            for (Sala integer : sale) {
-                saleTxt = saleTxt.concat(integer.getNumSala() + " ");
-            }
+            saleTxt = saleTxt.concat(sala.getNumSala() + " ");
             saleTxt = saleTxt.concat("|");
-            //TODO: trovare un modo migliore per quest'iterazione
-            if(isCheckingTime) {
-                if (sale.size() > 1) orari = orari.concat("[" + i + "] " + time + "nelle sale:" + saleTxt + " ");
-                else orari = orari.concat("[" + i + "] " + time + " nella sala: " + saleTxt + " ");
-
-
-            } else {
-                if (sale.size() > 1) orari = orari.concat(time + " nelle sale: " + saleTxt + " ");
-                else orari = orari.concat(time + " nella sala: " + saleTxt + " ");
-
-            }
-
+            orari = orari.concat("[" + i + "] " + time + " nella sala: " + saleTxt + " ");
         }
-        if(isCheckingTime)System.out.println(movieName + " | " + duration + "min | " + "alle ore: " + orari);
-        else System.out.println("[" + curFilm + "] " + movieName + " | " + duration + "min | " + "alle ore: " + orari);
+        return "[" + curFilm + "] " + movieName + " | " + duration + "min | " + "alle ore: " + orari;
     }
 }

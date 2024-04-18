@@ -3,24 +3,16 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
-public class Main extends Exception{
+public class Main extends ReadFiles{
     public static void main(String[] args) {
         HashMap<LocalDate, ArrayList<Film>> movieList = new HashMap<>();
-        String nLine = "";
+
+        ArrayList<ArrayList<String>> movieInfo = readFile("src/MovieSchedule - Foglio1.csv");
+        ArrayList<ArrayList<String>> movieTimeTable = readFile("src/MovieSchedule - Foglio2.csv");
+
         try {
-            //inserisce i valori del file in una matrice di ArrayList
-            BufferedReader br = new BufferedReader(new FileReader("src/MovieSchedule.csv"));
-            ArrayList<ArrayList<String>> dataMatrix = new ArrayList<>();
-            int cont = 0;
-            while((nLine = br.readLine()) != null) {
-                dataMatrix.add(new ArrayList<>());
-                String[] data = nLine.split(",");
-                for (int i = 0; i < data.length; i++) {
-                    dataMatrix.get(cont).add(data[i]);
-                }
-                cont++;
-            }
-            for (int i = 0; i < dataMatrix.size(); i++) {
+
+            /*for (int i = 0; i < dataMatrix.size(); i++) {
                 LocalDate movieDate = LocalDate.of(Integer.parseInt(dataMatrix.get(i).get(4)), Integer.parseInt(dataMatrix.get(i).get(3)),Integer.parseInt(dataMatrix.get(i).get(2)));
                 if(movieList.get(movieDate) != null) {
                     movieList.get(movieDate).add(creaFilm(dataMatrix.get(i)));
@@ -29,10 +21,10 @@ public class Main extends Exception{
                     moviesToAdd.add(creaFilm(dataMatrix.get(i)));
                     movieList.put(movieDate, moviesToAdd);
                 }
-            }
+            }*/
             buyProcess(movieList);
 
-        } catch (IOException e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -50,30 +42,19 @@ public class Main extends Exception{
             System.out.println("Quale film vorresti vedere? Inserisci il numero.");
             Film chosenFilm = movieList.get(chosenDate).get(inp.nextInt());
             System.out.println("Hai scelto il film " + chosenFilm.getMovieName() + ".");
-            chosenFilm.stampaFilm(0, true);
+            System.out.println(chosenFilm.toString(0));
 
             System.out.println( "quale orario preferisci? Inserisci il numero.");
             LocalTime chosenTime = (LocalTime) chosenFilm.getProgrammazione().getSchedule().keySet().toArray()[inp.nextInt()];
 
             System.out.println("Hai scelto il film " + chosenFilm.getMovieName() + " alle ore " + chosenTime);
-            ArrayList<Sala> sale = chosenFilm.getProgrammazione().getSchedule().get(chosenTime);
-            //prendo la prima sala
-            Sala chosenRoom = sale.get(0);
-            //se c'è più di una sala
-            if(sale.size() > 1) {
-                System.out.println("Per l'orario scelto ci sono più sale tra cui scegliere.");
-                for (int i = 0; i < sale.size(); i++) {
-                    System.out.println("[ " + i + " ] " + sale.get(i));
-                }
-                System.out.println("Quale sala preferisci? Inserisci il numero.");
-                chosenRoom = new Sala(inp.nextInt());
-            }
+            Sala chosenRoom = chosenFilm.getProgrammazione().getSala(chosenDate, chosenTime);
             System.out.println("Quanti biglietti vorresti acquistare?");
             int ticketsCount = inp.nextInt();
             if(ticketsCount <= 0) {
                 System.out.println("Non si possono inserire valori minori o uguali a 0!");
             } else {
-                ArrayList<ArrayList<Sala>> postiSelezionati = buyTickets(ticketsCount, chosenRoom, chosenFilm, chosenTime);
+                ArrayList<ArrayList<Sala>> postiSelezionati = buyTickets(ticketsCount, chosenRoom, chosenFilm, chosenTime, chosenDate);
                 String postiPrint = "";
                 if(!Objects.equals(postiSelezionati, new ArrayList<ArrayList<Sala>>())) {
                     for (ArrayList<Sala> _sale : postiSelezionati) {
@@ -95,11 +76,8 @@ public class Main extends Exception{
     }
 
     //TODO: Qui utilizzerei un oggetto personalizzato che funzioni come una hashmap ma senza usare KEY e VALUE. (Array a due elementi)
-    static ArrayList<ArrayList<Sala>> buyTickets(int ticketAmount, Sala chosenRoom, Film chosenFilm, LocalTime chosenTime) {
-        Sala sala = null;
-        for (int i = 0; i < chosenFilm.getProgrammazione().getSale(chosenTime).size(); i++) {
-            sala = (Sala)(chosenFilm.getProgrammazione().getSale(chosenTime).toArray()[i]);
-        }
+    static ArrayList<ArrayList<Sala>> buyTickets(int ticketAmount, Sala chosenRoom, Film chosenFilm, LocalTime chosenTime, LocalDate chosenDate) {
+        Sala sala = chosenFilm.getProgrammazione().getSala(chosenDate, chosenTime);
         Scanner inp = new Scanner(System.in);
         ArrayList<ArrayList<Sala>> seats = new ArrayList<>();
         if(sala.getPostiDisponibili() >= ticketAmount) {
@@ -133,7 +111,7 @@ public class Main extends Exception{
         if(movieList.get(date) != null) {
             ArrayList<Film> movieListArray = movieList.get(date);
             for (int i = 0; i < movieListArray.size(); i++) {
-                movieListArray.get(i).stampaFilm(i, false);
+                System.out.println(movieListArray.get(i).toString(i));
             }
         } else {
             System.out.println("Ci dispiace, ma in quella data non verranno riprodotti film.");
@@ -142,7 +120,7 @@ public class Main extends Exception{
         return date;
     }
 
-    public static Film creaFilm(ArrayList<String> data) {
+   /* public static Film creaFilm(ArrayList<String> data) {
         return new Film(
                 data.get(0),
                 Integer.parseInt(data.get(1)),
@@ -152,7 +130,7 @@ public class Main extends Exception{
                 )
 
         );
-    }
+    }*/
     public static HashMap<LocalTime, ArrayList<Sala>> scheduleInfo(ArrayList<String> data) {
         HashMap<LocalTime, ArrayList<Sala>> schedule = new HashMap<>();
         for (int i = 0; i < (data.size() - 5)/3; i++) {

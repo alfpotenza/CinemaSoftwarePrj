@@ -5,19 +5,17 @@ import java.util.HashMap;
 
 public class Programmazione {
     //variables
-    LocalDate data;
-    HashMap<LocalTime, ArrayList<Sala>> schedule;
+    HashMap<LocalDate, HashMap<LocalTime, Sala>> schedule;
     //constructor
-    public Programmazione(HashMap<LocalTime, ArrayList<Sala>> schedule, LocalDate data) {
+    public Programmazione(HashMap<LocalDate, HashMap<LocalTime, Sala>> schedule) {
         this.schedule = schedule;
-        this.data = data;
     }
 
-    public ArrayList<Sala> getSale(LocalTime time) {
-        return schedule.get(time);
+    public Sala getSala(LocalDate date, LocalTime time) {
+        return schedule.get(date).get(time);
     }
 
-    public HashMap<LocalTime, ArrayList<Sala>> getSchedule() {
+    public HashMap<LocalDate, HashMap<LocalTime, Sala>> getSchedule() {
         return schedule;
     }
 
